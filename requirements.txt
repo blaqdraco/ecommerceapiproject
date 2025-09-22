@@ -4,3 +4,4 @@ sqlparse==0.5.3
 tzdata==2025.2
 djangorestframework==3.16.1
 drf-spectacular==0.28.0
+Pillow==11.3.0
