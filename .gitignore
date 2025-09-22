@@ -1,0 +1,60 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+# Keep all local virtualenvs out of Git
+.ecommerceEnv/
+ecommerceEnv/
+.venv/
+venv/
+ENV/
+
+# Django
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.db
+local_settings.py
+.env
+.env.*
+
+# Common Django artifacts
+static/
+staticfiles/
+media/
+
+# Unit test / coverage
+.coverage
+.coverage.*
+.cache
+.nox/
+.pytest_cache/
+htmlcov/
+
+# Type checkers / linters
+.mypy_cache/
+.pytype/
+.dmypy.json
+pylint-report.txt
+pylint-score.txt
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+
+# IDE/editor
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Misc
+logs/
