@@ -19,6 +19,16 @@ This repository contains a Django project scaffold for an ecommerce API.
    - `python manage.py migrate`
    - `python manage.py runserver`
 
+## API Docs
+
+OpenAPI schema and interactive docs are available once the server is running:
+
+- Schema (JSON): `http://127.0.0.1:8000/api/schema/`
+- Swagger UI: `http://127.0.0.1:8000/api/docs/`
+- Redoc: `http://127.0.0.1:8000/api/redoc/`
+
+These are powered by `drf-spectacular`. The default schema auto-discovers your DRF viewsets and serializers.
+
 ## Notes
 - Keep secrets and local settings in a `.env` file (not checked into source control).
 - The `ecommerceEnv/` folder is local-only and excluded via `.gitignore`.
