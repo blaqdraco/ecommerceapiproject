@@ -1,5 +1,8 @@
 from django.db import models
 from django.utils.text import slugify
+from django.utils import timezone
+import secrets
+import string
 
 
 class Category(models.Model):
@@ -53,3 +56,52 @@ class Product(models.Model):
                 slug = f"{base}-{i}"
             self.slug = slug
         super().save(*args, **kwargs)
+
+
+def _generate_cart_code(length: int = 12) -> str:
+    alphabet = string.ascii_uppercase + string.digits
+    return ''.join(secrets.choice(alphabet) for _ in range(length))
+
+
+class Cart(models.Model):
+    cart_code = models.CharField(max_length=32, unique=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at", "-created_at"]
+
+    def __str__(self) -> str:
+        return f"Cart({self.cart_code})"
+
+    def save(self, *args, **kwargs):
+        if not self.cart_code:
+            # Ensure uniqueness by retrying a few times if collision occurs
+            for _ in range(5):
+                code = _generate_cart_code()
+                if not Cart.objects.filter(cart_code=code).exists():
+                    self.cart_code = code
+                    break
+        super().save(*args, **kwargs)
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='cart_items')
+    quantity = models.PositiveIntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("cart", "product")
+        ordering = ["-updated_at", "-created_at"]
+
+    def __str__(self) -> str:
+        return f"{self.product.name} x{self.quantity} in {self.cart.cart_code}"
+
+    @property
+    def line_total(self):
+        try:
+            return self.quantity * self.product.price
+        except Exception:
+            return 0

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, Category
+from .models import Product, Category, Cart, CartItem
 
 
 """
@@ -58,4 +58,36 @@ class CategoryDetailSerializer(serializers.ModelSerializer):
         model = Category
         fields = ["id", "name", "slug", "image", "products"]
         read_only_fields = ["id", "slug", "products"]
+
+
+class CartItemSerializer(serializers.ModelSerializer):
+    product = ProductListSerializer(read_only=True)
+    product_id = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all(), source='product', write_only=True
+    )
+    line_total = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = CartItem
+        fields = [
+            "id", "product", "product_id", "quantity", "line_total",
+            "created_at", "updated_at"
+        ]
+        read_only_fields = ["id", "line_total", "created_at", "updated_at", "product"]
+
+    def get_line_total(self, obj):
+        return obj.line_total
+
+
+class CartSerializer(serializers.ModelSerializer):
+    items = CartItemSerializer(many=True, read_only=True)
+    total = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Cart
+        fields = ["id", "cart_code", "items", "total", "created_at", "updated_at"]
+        read_only_fields = ["id", "cart_code", "items", "total", "created_at", "updated_at"]
+
+    def get_total(self, obj):
+        return sum((item.line_total for item in obj.items.all()), start=0)
   
