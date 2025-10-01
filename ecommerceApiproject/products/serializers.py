@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Product, Category, Cart, CartItem
+from .models import Product, Category, Cart, CartItem, Review
+from django.contrib.auth import get_user_model
 
 
 """
@@ -87,7 +88,24 @@ class CartSerializer(serializers.ModelSerializer):
         model = Cart
         fields = ["id", "cart_code", "items", "total", "created_at", "updated_at"]
         read_only_fields = ["id", "cart_code", "items", "total", "created_at", "updated_at"]
-
     def get_total(self, obj):
-        return sum((item.line_total for item in obj.items.all()), start=0)
+        return sum(item.line_total for item in obj.items.all())
   
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = ['id', 'first_name', 'last_name']
+        read_only_fields = ['id']
+class ReviewSerializer(serializers.ModelSerializer):
+    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
+
+    class Meta:
+        model = Review
+        fields = ['id', 'product', 'user', 'rating', 'comment', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'user']
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        if request and hasattr(request, 'user'):
+            validated_data['user'] = request.user
+        return super().create(validated_data)   

@@ -105,3 +105,28 @@ class CartItem(models.Model):
             return self.quantity * self.product.price
         except Exception:
             return 0
+            
+class Review(models.Model):
+
+    RATING_CHOICE = [
+        (1, '1 - Poor'),
+        (2, '2 - Fair'),
+        (3, '3 - Good'),
+        (4, '4 - Very Good'),
+        (5, '5 - Excellent'),
+    ]
+
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reviews' )
+    rating = models.PositiveIntegerField(choices=RATING_CHOICE)
+    review = models.TextFieldField(max_length=255)
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        unique_together = ("product", "user")
+
+    def __str__(self) -> str:
+        return f"Review by {self.user_name} for {self.product.name}"
